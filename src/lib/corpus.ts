@@ -8,7 +8,23 @@ export interface ManifestEntry {
 
 const BASE = import.meta.env.BASE_URL || '/'
 
+/**
+ * A standalone build embeds its texts on the page instead of serving them as
+ * files, so the app also works from a single HTML file or a host that will not
+ * serve JSON. Falls back to fetching from public/data/ when absent.
+ */
+interface Embedded {
+  index: { corpora: ManifestEntry[] }
+  corpora: Record<string, Corpus>
+}
+
+function embedded(): Embedded | undefined {
+  return (globalThis as { __NORSK_DATA__?: Embedded }).__NORSK_DATA__
+}
+
 export async function loadManifest(): Promise<ManifestEntry[]> {
+  const data = embedded()
+  if (data) return data.index.corpora ?? []
   const res = await fetch(`${BASE}data/index.json`)
   if (!res.ok) throw new Error(`Could not load the text list (${res.status}).`)
   const json = (await res.json()) as { corpora: ManifestEntry[] }
@@ -16,6 +32,9 @@ export async function loadManifest(): Promise<ManifestEntry[]> {
 }
 
 export async function loadCorpus(entry: ManifestEntry): Promise<Corpus> {
+  const data = embedded()
+  const local = data?.corpora[entry.file]
+  if (local) return local
   const res = await fetch(`${BASE}data/${entry.file}`)
   if (!res.ok) throw new Error(`Could not load "${entry.title}" (${res.status}).`)
   return (await res.json()) as Corpus
