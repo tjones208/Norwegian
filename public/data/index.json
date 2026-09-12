@@ -1,0 +1,9 @@
+{
+  "corpora": [
+    {
+      "id": "demo",
+      "title": "Øvingstekster (Practice Texts)",
+      "file": "demo.json"
+    }
+  ]
+}

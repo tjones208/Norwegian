@@ -1,0 +1,70 @@
+{
+  "id": "demo",
+  "title": "Øvingstekster (Practice Texts)",
+  "language": "nb-NO",
+  "source": "Original practice passages written for this app. Replace with your own text via `npm run import`.",
+  "books": [
+    {
+      "id": "lesing",
+      "title": "Om å lese",
+      "titleEn": "On Reading",
+      "chapters": [
+        {
+          "n": 1,
+          "heading": "En som begynner å lese på et nytt språk.",
+          "verses": [
+            { "n": 1, "no": "I begynnelsen kunne jeg bare noen få ord på norsk.", "en": "In the beginning I knew only a few words of Norwegian." },
+            { "n": 2, "no": "Hver dag leste jeg en liten stund, og sakte ble ordene kjente.", "en": "Every day I read for a little while, and slowly the words became familiar." },
+            { "n": 3, "no": "Se, en bok kan åpne en hel verden for den som vil lese.", "en": "Behold, a book can open a whole world to the one who will read." },
+            { "n": 4, "no": "Og det skjedde at jeg begynte å forstå hele setninger.", "en": "And it came to pass that I began to understand whole sentences." },
+            { "n": 5, "no": "Min far sa til meg: Du må lese høyt, for da hører du språket.", "en": "My father said to me: You must read aloud, for then you hear the language." },
+            { "n": 6, "no": "Jeg svarte: Jeg vil gjøre det du sier, for jeg vet at det er godt.", "en": "I answered: I will do what you say, for I know that it is good." },
+            { "n": 7, "no": "Derfor leste jeg hver morgen, og om kvelden skrev jeg ned nye ord.", "en": "Therefore I read every morning, and in the evening I wrote down new words." },
+            { "n": 8, "no": "Ordene som var vanskelige, skrev jeg på kort, og jeg leste dem igjen og igjen.", "en": "The words that were difficult I wrote on cards, and I read them again and again." },
+            { "n": 9, "no": "Etter mange dager kunne jeg lese en hel side uten hjelp.", "en": "After many days I could read a whole page without help." },
+            { "n": 10, "no": "Og jeg gledet meg, for arbeidet hadde båret frukt.", "en": "And I rejoiced, for the work had borne fruit." }
+          ]
+        },
+        {
+          "n": 2,
+          "heading": "Om tålmodighet i arbeidet.",
+          "verses": [
+            { "n": 1, "no": "Et menneske lærer ikke et språk på én dag.", "en": "A person does not learn a language in one day." },
+            { "n": 2, "no": "Men den som holder ut, skal se at han kommer frem til slutt.", "en": "But the one who endures shall see that he arrives at last." },
+            { "n": 3, "no": "Ordene er som steiner: du legger én om gangen, og til sist står huset ferdig.", "en": "Words are like stones: you lay one at a time, and at last the house stands finished." },
+            { "n": 4, "no": "Noen dager er lette, og andre dager er tunge.", "en": "Some days are easy, and other days are heavy." },
+            { "n": 5, "no": "På de tunge dagene leste jeg bare ett vers, men jeg leste det godt.", "en": "On the heavy days I read only one verse, but I read it well." },
+            { "n": 6, "no": "For det er bedre å forstå ett vers enn å skynde seg gjennom ti.", "en": "For it is better to understand one verse than to hurry through ten." },
+            { "n": 7, "no": "Og når jeg ikke visste hva et ord betydde, spurte jeg, og jeg fikk svar.", "en": "And when I did not know what a word meant, I asked, and I received an answer." },
+            { "n": 8, "no": "Slik vokste kunnskapen min, litt etter litt, dag for dag.", "en": "Thus my knowledge grew, little by little, day by day." }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "monstre",
+      "title": "Setningsmønstre",
+      "titleEn": "Sentence Patterns",
+      "chapters": [
+        {
+          "n": 1,
+          "heading": "Word order, questions and negation — the patterns that carry most sentences.",
+          "verses": [
+            { "n": 1, "no": "Jeg leser en bok.", "en": "I am reading a book." },
+            { "n": 2, "no": "I dag leser jeg en bok.", "en": "Today I am reading a book. (The verb stays in second place, so the subject moves after it.)" },
+            { "n": 3, "no": "Jeg leser ikke boken nå.", "en": "I am not reading the book now. (\"ikke\" follows the verb.)" },
+            { "n": 4, "no": "Leser du norsk hver dag?", "en": "Do you read Norwegian every day? (Questions simply put the verb first.)" },
+            { "n": 5, "no": "Hva betyr dette ordet?", "en": "What does this word mean?" },
+            { "n": 6, "no": "Hvor kommer du fra?", "en": "Where do you come from?" },
+            { "n": 7, "no": "Han sa at han ville komme i morgen.", "en": "He said that he would come tomorrow." },
+            { "n": 8, "no": "Hvis du lytter godt, vil du høre forskjellen.", "en": "If you listen carefully, you will hear the difference." },
+            { "n": 9, "no": "Boken som ligger på bordet, er min.", "en": "The book that is lying on the table is mine." },
+            { "n": 10, "no": "Det er lettere å lese enn å snakke.", "en": "It is easier to read than to speak." },
+            { "n": 11, "no": "En bok, boken, bøker, bøkene.", "en": "A book, the book, books, the books. (Norwegian marks \"the\" as an ending.)" },
+            { "n": 12, "no": "Jeg har lest boken, og nå vil jeg lese den igjen.", "en": "I have read the book, and now I want to read it again." }
+          ]
+        }
+      ]
+    }
+  ]
+}
