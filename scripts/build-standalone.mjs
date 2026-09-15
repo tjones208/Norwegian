@@ -20,6 +20,8 @@ const OUT = join(ROOT, 'dist-standalone')
 
 const html = readFileSync(join(DIST, 'index.html'), 'utf8')
 
+// Take the title from the real page so the two cannot drift apart.
+const title = /<title>([^<]*)<\/title>/.exec(html)?.[1] ?? 'Norsk Lærer'
 const entry = /<script[^>]+src="\.?\/?(assets\/[^"]+\.js)"/.exec(html)?.[1]
 const styles = /<link[^>]+href="\.?\/?(assets\/[^"]+\.css)"/.exec(html)?.[1]
 if (!entry) throw new Error('No entry script found in dist/index.html — run `npm run build` first.')
@@ -43,7 +45,7 @@ for (const file of readdirSync(join(DIST, 'assets'))) {
 
 writeFileSync(
   join(OUT, 'index.html'),
-  `<title>Norsk Lesar</title>
+  `<title>${title}</title>
 <style>
 ${css}
 </style>
