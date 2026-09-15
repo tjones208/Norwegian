@@ -1,11 +1,10 @@
-# Norsk Lesar
+# Norsk Lærer
 
-A reading app for learning Norwegian from a text you already know well. Click any
-word to hear it and see what it means, play a whole chapter with the words
-highlighted as they are spoken, keep a parallel English column beside the
-Norwegian, and turn the words you look up into a spaced-repetition deck.
+A Norwegian tutor that runs in the browser. It teaches the language from the
+alphabet upward, drills what it teaches, listens to you speak it, and lets you
+read a real text with the audio and a word-by-word gloss.
 
-Everything runs in the browser. No server, no API keys, no cost.
+Everything runs client-side. No server, no API keys, no cost.
 
 ```bash
 npm install
@@ -51,36 +50,49 @@ straight through.
 
 ## What it does
 
-**Hearing the text.** Click a word to hear it. Select a phrase and a "Speak
-selection" button appears. Press play on a verse for that verse alone, or
-`▶ Les kapittelet` to read the whole chapter continuously, with each word
-highlighted as the voice reaches it. Speed runs from 0.5× to 1.5× — slow is
-normal early on.
+**The course.** Twenty-six lessons across eight units, written for someone
+starting from nothing: the alphabet and the sounds that mislead English readers
+(silent `d`, `kj`, `skj`, `hv`, the `-et` whose `t` disappears), then nouns,
+verbs, word order, adjectives, pronouns, numbers, time, and everyday Norwegian.
+Each lesson explains one point, shows it in sentences you can play aloud,
+tabulates the forms, and supplies the sentences its drills are built from.
+
+**Practice.** Five kinds of drill, generated from the lessons you have done and
+from the text you are reading:
+
+| Drill | What you do |
+| --- | --- |
+| Translate | English prompt, you write the Norwegian |
+| Fill the gap | A word is removed from a sentence you have seen |
+| Listen and write | Audio only, no text, you type what you hear |
+| Choose | Pick `en` / `ei` / `et` for a noun |
+| Say it | Read the sentence aloud into the microphone |
+
+Answers are graded word by word rather than pass/fail. The comparison aligns
+your answer against the target, so one dropped word does not mark everything
+after it wrong, and a one-character difference is reported as a spelling slip
+instead of an error. If you have no Norwegian keyboard, `ae`, `o` and `a` are
+accepted for `æ`, `ø` and `å`.
+
+**Speaking.** With the microphone on, the browser transcribes what you say and
+marks each word against the target so you can see which ones did not land. It is
+off until you turn it on in Settings, and Settings explains that Chrome sends
+the audio to Google to transcribe it. Every speaking drill still works without
+it — hear the model sentence, say it back, compare by ear.
+
+**Reading.** Click a word to hear it and see what it means, with the inflection
+worked out: `leste` is shown as the past tense of `lese`, `bøkene` as the
+definite plural of `bok`. Play a whole chapter with each word highlighted as the
+voice reaches it. English sits below each verse, beside it, or off. Words you
+look up become spaced-repetition cards that keep the sentence you met them in.
+
+**The daily plan.** The home screen says what to do today — reviews due, the
+next lesson, drills toward your goal, speaking, reading — with a streak that
+counts any activity and a bar showing progress through the course.
 
 Speech uses the voices your operating system provides. If no Norwegian voice is
 installed, Settings tells you how to add one; without it, speech falls back to
 another language and sounds wrong.
-
-**Understanding it.** Clicking a word opens a panel with its meaning, its
-dictionary form, and how it got from one to the other — `leste` is shown as the
-past tense of `lese`, `bøkene` as the definite plural of `bok`. Nouns show their
-gender, and words carry pronunciation hints for the spellings that mislead
-English readers (`hv-`, `kj-`, `skj-`, silent `d`).
-
-The glossary holds about 370 entries: the function words that hold sentences
-together, plus vocabulary that recurs through scripture. A word it does not know
-still gets an analysis of its shape, and you can write your own definition —
-stored in your browser, and recognised everywhere after that.
-
-**Reading alongside English.** The English column sits below each verse or beside
-it, or turns off entirely. Add a note to any verse for the things that only make
-sense once you have worked them out yourself.
-
-**Remembering it.** Any word you look up can go into a deck scheduled with SM-2,
-the algorithm behind Anki. Cards keep the verse you met the word in, so you
-review it in context rather than as an isolated pair. The `Ord` tab also lists the
-most frequent words in your text that are *not* yet in your deck — the highest
--value vocabulary to learn next.
 
 ## Keyboard
 
@@ -115,11 +127,16 @@ as GitHub Pages.
 ## Layout
 
 ```
+src/data/lessons/       the curriculum, one file per group of units
+src/data/glossary.ts    the bundled Norwegian -> English glossary
 src/lib/tokenize.ts     splits verses into words, keeping offsets for read-along
 src/lib/morphology.ts   suffix rules mapping inflected forms to dictionary forms
 src/lib/glossary.ts     lookup: exact -> irregular form -> suffix rules
 src/lib/tts.ts          voice selection, speech, pronunciation hints
+src/lib/asr.ts          speech recognition for speaking practice
+src/lib/scoring.ts      word-by-word grading of what you produce
+src/lib/drills.ts       builds drills from lessons and from the text
+src/lib/plan.ts         the daily plan, streak and curriculum progress
 src/lib/srs.ts          SM-2 scheduling
-src/data/glossary.ts    the bundled Norwegian -> English glossary
 scripts/import-text.mjs the text importer
 ```
