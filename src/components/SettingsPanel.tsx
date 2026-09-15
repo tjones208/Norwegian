@@ -4,6 +4,7 @@ import type { ManifestEntry } from '../lib/corpus'
 import { exportState, importState } from '../lib/storage'
 import { countVerses } from '../lib/corpus'
 import * as tts from '../lib/tts'
+import * as asr from '../lib/asr'
 import * as sync from '../lib/sync'
 
 interface Props {
@@ -121,6 +122,40 @@ export function SettingsPanel({ state, corpus, manifest, update, replaceState }:
         <div className="help">Turn this off if you would rather see the definition silently.</div>
       </div>
 
+      <h2 className="section">Speaking</h2>
+      {asr.unavailableReason() ? (
+        <div className="notice warn">
+          <strong>Speaking practice cannot be scored in this browser.</strong> {asr.unavailableReason()} You
+          can still do speaking drills — listen to the model sentence, say it back, and compare by ear.
+        </div>
+      ) : (
+        <>
+          <div className="field">
+            <label>
+              <input
+                type="checkbox"
+                checked={settings.micEnabled}
+                onChange={(e) =>
+                  update((s) => ({ ...s, settings: { ...s.settings, micEnabled: e.target.checked } }))
+                }
+              />{' '}
+              Use the microphone to score my speaking
+            </label>
+            <div className="help">
+              When this is on, speaking drills listen to you and mark each word against the target. Your
+              browser will ask permission the first time.
+            </div>
+          </div>
+          <div className="notice">
+            <strong>Where your voice goes.</strong> This uses the browser's own speech recognition. In Chrome
+            that means the audio is sent to Google's servers to be transcribed — it does not stay on your
+            device, and it does not come to this app or to anyone running it. Leave this off if you would
+            rather not send audio anywhere; every speaking drill still works, just without the automatic
+            scoring.
+          </div>
+        </>
+      )}
+
       <h2 className="section">Reading</h2>
       <div className="field">
         <label htmlFor="size">Text size — {settings.fontSize}px</label>
@@ -151,6 +186,25 @@ export function SettingsPanel({ state, corpus, manifest, update, replaceState }:
           <option value="light">Light</option>
           <option value="dark">Dark</option>
         </select>
+      </div>
+
+      <div className="field">
+        <label htmlFor="goal">Daily goal — {settings.dailyGoal} drills</label>
+        <input
+          id="goal"
+          type="range"
+          min={5}
+          max={60}
+          step={5}
+          value={settings.dailyGoal}
+          onChange={(e) =>
+            update((s) => ({ ...s, settings: { ...s.settings, dailyGoal: Number(e.target.value) } }))
+          }
+        />
+        <div className="help">
+          What the home screen asks of you each day. Twenty is a good daily habit; lower it rather than
+          break the streak.
+        </div>
       </div>
 
       <h2 className="section">Your data</h2>

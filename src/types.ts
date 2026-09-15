@@ -125,6 +125,10 @@ export interface Settings {
   /** Speak a word when you click it, instead of only showing the gloss. */
   speakOnTap: boolean
   theme: 'light' | 'dark' | 'system'
+  /** Allow the microphone for speaking practice. Off until you turn it on. */
+  micEnabled: boolean
+  /** Drills to aim for each day, used by the plan and the streak. */
+  dailyGoal: number
 }
 
 /** Everything we persist. Written to browser storage, optionally mirrored to Supabase. */
@@ -136,4 +140,109 @@ export interface AppState {
   read: Record<string, number>
   /** Custom glossary entries you added yourself, keyed by lemma. */
   userGlossary: Record<string, GlossEntry>
+  /** Curriculum progress, keyed by lesson id. */
+  lessons: Record<string, LessonProgress>
+  /** Daily activity, keyed YYYY-MM-DD. */
+  days: Record<string, DayLog>
+}
+
+// ---------------------------------------------------------------------------
+// Tutor: curriculum, drills and daily progress
+// ---------------------------------------------------------------------------
+
+export interface Unit {
+  id: string
+  title: string
+  titleEn: string
+  /** One line on what this unit gets you able to do. */
+  goal: string
+}
+
+export interface Example {
+  no: string
+  en: string
+  /** Why this example is here — the point it illustrates. */
+  note?: string
+}
+
+export interface Table {
+  caption?: string
+  head: string[]
+  rows: string[][]
+}
+
+export interface Section {
+  heading: string
+  body: string
+  examples?: Example[]
+  table?: Table
+}
+
+export interface Lesson {
+  id: string
+  unitId: string
+  title: string
+  titleEn: string
+  summary: string
+  /** Rough reading time, shown in the daily plan. */
+  minutes: number
+  sections: Section[]
+  vocab?: Array<{ no: string; en: string; pos?: PartOfSpeech; gender?: 'm' | 'f' | 'n' }>
+  /** Sentences this lesson can be drilled on. */
+  practice: Example[]
+}
+
+export type DrillKind = 'translate' | 'cloze' | 'dictation' | 'speak' | 'choice'
+
+export interface Drill {
+  id: string
+  kind: DrillKind
+  /** What the learner is shown. */
+  prompt: string
+  /** The Norwegian they must produce, type or say. */
+  answer: string
+  /** Other wordings counted as correct. */
+  alternatives?: string[]
+  /** Text spoken aloud for dictation and speaking drills. */
+  audio?: string
+  hint?: string
+  choices?: string[]
+  /** Lesson id or verse reference this came from. */
+  source?: string
+  sourceLabel?: string
+}
+
+export interface Phrase {
+  no: string
+  en: string
+  category: string
+  note?: string
+}
+
+export interface LessonProgress {
+  lessonId: string
+  startedAt: number
+  completedAt?: number
+  /** Share of practice drills answered correctly, 0–1. */
+  score?: number
+}
+
+/** One day's activity, keyed YYYY-MM-DD, for the streak and the daily goal. */
+export interface DayLog {
+  date: string
+  drills: number
+  correct: number
+  versesRead: number
+  lessonsDone: number
+}
+
+export type PlanItemKind = 'review' | 'lesson' | 'drill' | 'speak' | 'read'
+
+export interface PlanItem {
+  kind: PlanItemKind
+  title: string
+  detail: string
+  /** How many things this covers — cards due, drills queued. */
+  count?: number
+  done: boolean
 }

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import type { AppState, Card, Corpus, Note } from '../types'
-import { stats } from '../lib/srs'
+import { stats, type Grade } from '../lib/srs'
+import { Review } from './Review'
 import { wordFrequencies } from '../lib/tokenize'
 import { allVerseTexts } from '../lib/corpus'
 import { lookup } from '../lib/glossary'
@@ -10,13 +11,14 @@ interface Props {
   state: AppState
   corpus: Corpus
   onRemoveCard: (id: string) => void
+  onGrade: (card: Card, grade: Grade) => void
   onAddWord: (word: string, en: string, lemma: string) => void
 }
 
-type View = 'deck' | 'notes' | 'frequency'
+type View = 'review' | 'deck' | 'notes' | 'frequency'
 
-export function Deck({ state, corpus, onRemoveCard, onAddWord }: Props) {
-  const [view, setView] = useState<View>('deck')
+export function Deck({ state, corpus, onRemoveCard, onGrade, onAddWord }: Props) {
+  const [view, setView] = useState<View>('review')
   const [query, setQuery] = useState('')
 
   const cards = useMemo(
@@ -75,21 +77,33 @@ export function Deck({ state, corpus, onRemoveCard, onAddWord }: Props) {
 
       <div className="chapter-bar ui">
         <div className="tabs">
-          {(['deck', 'frequency', 'notes'] as View[]).map((v) => (
+          {(['review', 'deck', 'frequency', 'notes'] as View[]).map((v) => (
             <button key={v} className="tab" aria-selected={view === v} onClick={() => setView(v)}>
-              {v === 'deck' ? 'My words' : v === 'frequency' ? 'Learn next' : 'Notes'}
+              {v === 'review' ? 'Repeter' : v === 'deck' ? 'My words' : v === 'frequency' ? 'Learn next' : 'Notes'}
+              {v === 'review' && deck.due > 0 && <span className="badge">{deck.due}</span>}
             </button>
           ))}
         </div>
         <div className="spacer" />
-        <input
-          type="search"
-          placeholder="Search…"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          style={{ maxWidth: 200 }}
-        />
+        {view !== 'review' && (
+          <input
+            type="search"
+            placeholder="Search…"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            style={{ maxWidth: 200 }}
+          />
+        )}
       </div>
+
+      {view === 'review' && (
+        <Review
+          cards={state.cards}
+          rate={state.settings.rate}
+          voiceURI={state.settings.voiceURI}
+          onGrade={onGrade}
+        />
+      )}
 
       {view === 'deck' && (
         <div className="card-grid">

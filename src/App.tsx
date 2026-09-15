@@ -1,25 +1,40 @@
-import { useEffect, useMemo, useState } from 'react'
-import type { Card, Corpus, GlossEntry, VerseRef } from './types'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import type { Card, Corpus, GlossEntry, PlanItemKind, VerseRef } from './types'
 import { loadCorpus, loadManifest, type ManifestEntry } from './lib/corpus'
 import { useAppState } from './lib/useAppState'
 import { newCard, review, dueCards, type Grade } from './lib/srs'
+import { logActivity, nextLesson } from './lib/plan'
+import { Home } from './components/Home'
+import { Lessons } from './components/Lessons'
+import { Practice } from './components/Practice'
 import { Reader } from './components/Reader'
-import { Review } from './components/Review'
 import { Deck } from './components/Deck'
 import { SettingsPanel } from './components/SettingsPanel'
 import * as tts from './lib/tts'
 
-type Tab = 'read' | 'review' | 'words' | 'settings'
+type Tab = 'home' | 'learn' | 'practice' | 'speak' | 'read' | 'words' | 'settings'
+
+const TABS: Array<[Tab, string, string]> = [
+  ['home', 'Hjem', 'Home'],
+  ['learn', 'Lær', 'Lessons'],
+  ['practice', 'Øv', 'Practice'],
+  ['speak', 'Snakk', 'Speak'],
+  ['read', 'Les', 'Read'],
+  ['words', 'Ord', 'Words'],
+]
 
 export default function App() {
   const { state, setState, update } = useAppState()
-  const [tab, setTab] = useState<Tab>('read')
+  const [tab, setTab] = useState<Tab>('home')
   const [manifest, setManifest] = useState<ManifestEntry[]>([])
   const [corpus, setCorpus] = useState<Corpus | null>(null)
   const [error, setError] = useState<string | null>(null)
+  /** Lesson to open when arriving from the plan, and drill focus from a lesson. */
+  const [openLesson, setOpenLesson] = useState<string | undefined>()
+  const [drillLesson, setDrillLesson] = useState<string | undefined>()
+  /** Bumped to force a fresh practice queue when starting a new round. */
+  const [practiceRun, setPracticeRun] = useState(0)
 
-  // Warm the voice list early: browsers populate it asynchronously, and the
-  // first speak() would otherwise fall back to a non-Norwegian default.
   useEffect(() => {
     tts.loadVoices()
   }, [])
@@ -40,7 +55,6 @@ export default function App() {
           settings: {
             ...s.settings,
             corpusId: loaded.id,
-            // Fall back to the first book whenever the saved one is not in this text.
             bookId: loaded.books.some((b) => b.id === s.settings.bookId)
               ? s.settings.bookId
               : (loaded.books[0]?.id ?? ''),
@@ -50,7 +64,6 @@ export default function App() {
       .catch((e: Error) => setError(e.message))
   }, [manifest, state.settings.corpusId, update])
 
-  // Theme: an explicit choice wins; "system" follows the OS preference live.
   useEffect(() => {
     const root = document.documentElement
     const apply = () => {
@@ -110,32 +123,79 @@ export default function App() {
   const gradeCard = (card: Card, grade: Grade) =>
     update((s) => ({ ...s, cards: { ...s.cards, [card.id]: review(card, grade) } }))
 
+  const answered = useCallback(
+    (correct: boolean) =>
+      update((s) => logActivity(s, { drills: 1, correct: correct ? 1 : 0 })),
+    [update],
+  )
+
+  const toggleLessonDone = (lessonId: string) =>
+    update((s) => {
+      const existing = s.lessons[lessonId]
+      const lessons = { ...s.lessons }
+      if (existing?.completedAt) {
+        lessons[lessonId] = { ...existing, completedAt: undefined }
+        return { ...s, lessons }
+      }
+      lessons[lessonId] = {
+        lessonId,
+        startedAt: existing?.startedAt ?? Date.now(),
+        completedAt: Date.now(),
+      }
+      return logActivity({ ...s, lessons }, { lessonsDone: 1 })
+    })
+
+  /** Jump from a daily-plan row to the screen that does that thing. */
+  const goTo = (kind: PlanItemKind) => {
+    if (kind === 'review') setTab('words')
+    else if (kind === 'lesson') {
+      setOpenLesson(nextLesson(state)?.id)
+      setTab('learn')
+    } else if (kind === 'drill') {
+      setDrillLesson(undefined)
+      setPracticeRun((n) => n + 1)
+      setTab('practice')
+    } else if (kind === 'speak') setTab('speak')
+    else setTab('read')
+    window.scrollTo({ top: 0 })
+  }
+
   return (
     <div className="app">
       <header className="topbar">
-        <div className="brand">
-          Norsk <span>Lesar</span>
-        </div>
+        <button className="brand" onClick={() => setTab('home')}>
+          Norsk <span>Lærer</span>
+        </button>
         <nav className="tabs" role="tablist">
-          {(
-            [
-              ['read', 'Les'],
-              ['review', 'Repeter'],
-              ['words', 'Ord'],
-              ['settings', 'Innstillinger'],
-            ] as Array<[Tab, string]>
-          ).map(([value, label]) => (
+          {TABS.map(([value, label, english]) => (
             <button
               key={value}
               role="tab"
               className="tab"
               aria-selected={tab === value}
-              onClick={() => setTab(value)}
+              title={english}
+              onClick={() => {
+                if (value === 'learn') setOpenLesson(undefined)
+                if (value === 'practice') {
+                  setDrillLesson(undefined)
+                  setPracticeRun((n) => n + 1)
+                }
+                setTab(value)
+              }}
             >
               {label}
-              {value === 'review' && due > 0 && <span className="badge">{due}</span>}
+              {value === 'words' && due > 0 && <span className="badge">{due}</span>}
             </button>
           ))}
+          <button
+            role="tab"
+            className="tab"
+            aria-selected={tab === 'settings'}
+            title="Innstillinger"
+            onClick={() => setTab('settings')}
+          >
+            ⚙
+          </button>
         </nav>
       </header>
 
@@ -148,7 +208,48 @@ export default function App() {
             </div>
           )}
 
-          {!corpus && !error && <div className="empty">Loading…</div>}
+          {tab === 'home' && <Home state={state} onGo={goTo} />}
+
+          {tab === 'learn' && (
+            <Lessons
+              state={state}
+              initialLessonId={openLesson}
+              onComplete={toggleLessonDone}
+              onPractiseLesson={(lessonId) => {
+                setDrillLesson(lessonId)
+                setPracticeRun((n) => n + 1)
+                setTab('practice')
+                window.scrollTo({ top: 0 })
+              }}
+            />
+          )}
+
+          {tab === 'practice' && (
+            <Practice
+              key={`practice-${practiceRun}-${drillLesson ?? 'mixed'}`}
+              state={state}
+              corpus={corpus ?? undefined}
+              lessonId={drillLesson}
+              onAnswered={answered}
+            />
+          )}
+
+          {tab === 'speak' && (
+            <>
+              <h2 className="section">Snakk — speaking practice</h2>
+              <p className="ui lead">
+                Read each sentence aloud. With the microphone on, every word you say is checked against the
+                target and the ones that missed are marked.
+              </p>
+              <Practice
+                key={`speak-${practiceRun}`}
+                state={state}
+                corpus={corpus ?? undefined}
+                only={['speak']}
+                onAnswered={answered}
+              />
+            </>
+          )}
 
           {corpus && tab === 'read' && (
             <Reader
@@ -160,27 +261,24 @@ export default function App() {
             />
           )}
 
-          {tab === 'review' && (
-            <Review
-              cards={state.cards}
-              rate={state.settings.rate}
-              voiceURI={state.settings.voiceURI}
-              onGrade={gradeCard}
-            />
-          )}
-
           {corpus && tab === 'words' && (
             <Deck
               state={state}
               corpus={corpus}
               onRemoveCard={removeCard}
+              onGrade={gradeCard}
               onAddWord={(word, en, lemma) =>
                 addCard({
                   surface: word,
                   lemma,
                   en,
                   context: '',
-                  ref: { corpus: corpus.id, book: state.settings.bookId, chapter: state.settings.chapter, verse: 0 },
+                  ref: {
+                    corpus: corpus.id,
+                    book: state.settings.bookId,
+                    chapter: state.settings.chapter,
+                    verse: 0,
+                  },
                 })
               }
             />

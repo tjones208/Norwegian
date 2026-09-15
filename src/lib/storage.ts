@@ -13,6 +13,8 @@ export const DEFAULT_SETTINGS: Settings = {
   highlightKnown: true,
   speakOnTap: true,
   theme: 'system',
+  micEnabled: false,
+  dailyGoal: 20,
 }
 
 export const EMPTY_STATE: AppState = {
@@ -21,6 +23,8 @@ export const EMPTY_STATE: AppState = {
   notes: {},
   read: {},
   userGlossary: {},
+  lessons: {},
+  days: {},
 }
 
 export function refKey(ref: VerseRef): string {
@@ -39,6 +43,8 @@ export function load(): AppState {
       notes: parsed.notes ?? {},
       read: parsed.read ?? {},
       userGlossary: parsed.userGlossary ?? {},
+      lessons: parsed.lessons ?? {},
+      days: parsed.days ?? {},
     }
   } catch {
     return EMPTY_STATE
@@ -66,5 +72,13 @@ export function importState(json: string): AppState {
     notes: parsed.notes ?? {},
     read: parsed.read ?? {},
     userGlossary: parsed.userGlossary ?? {},
+    lessons: parsed.lessons ?? {},
+    days: parsed.days ?? {},
   }
+}
+
+/** Today's date as YYYY-MM-DD in the local timezone, the key for DayLog. */
+export function today(date = new Date()): string {
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
 }

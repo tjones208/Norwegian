@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { AppState, Corpus, GlossEntry, ParallelMode, VerseRef } from '../types'
 import { findBook, findChapter, formatRef, step } from '../lib/corpus'
 import { refKey } from '../lib/storage'
+import { logActivity } from '../lib/plan'
 import { phrasesIn } from '../lib/glossary'
 import { normalize } from '../lib/tokenize'
 import * as tts from '../lib/tts'
@@ -116,9 +117,14 @@ export function Reader({ corpus, state, update, onAddCard, onRemoveCard }: Props
       update((s) => {
         const read = { ...s.read }
         const k = refKey(target)
-        if (read[k]) delete read[k]
-        else read[k] = Date.now()
-        return { ...s, read }
+        if (read[k]) {
+          delete read[k]
+          return { ...s, read }
+        }
+        read[k] = Date.now()
+        // Only marking a verse read counts toward the day — unmarking does not
+        // subtract, so the streak cannot be gamed backwards.
+        return logActivity({ ...s, read }, { versesRead: 1 })
       }),
     [update],
   )
