@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react'
-import type { Card, GlossEntry, VerseRef } from '../types'
+import type { Card, GlossEntry, Settings, VerseRef } from '../types'
 import { article, lookup, POS_LABEL } from '../lib/glossary'
 import { pronunciationHints } from '../lib/tts'
 import { normalize } from '../lib/tokenize'
+import { Speak } from './Speak'
 
 interface Props {
   word: string
@@ -11,7 +12,7 @@ interface Props {
   context: string
   userGlossary: Record<string, GlossEntry>
   existingCard?: Card
-  onSpeak: (text: string) => void
+  settings: Settings
   onAddCard: (fields: { surface: string; lemma: string; en: string; pos?: GlossEntry['pos']; context: string; ref: VerseRef }) => void
   onRemoveCard: (id: string) => void
   onSaveGloss: (entry: GlossEntry) => void
@@ -29,7 +30,7 @@ export function WordPanel({
   context,
   userGlossary,
   existingCard,
-  onSpeak,
+  settings,
   onAddCard,
   onRemoveCard,
   onSaveGloss,
@@ -80,8 +81,20 @@ export function WordPanel({
       {context && <div className="context">{context}</div>}
 
       <div className="panel-actions">
-        <button onClick={() => onSpeak(word)}>🔊 Word</button>
-        <button onClick={() => onSpeak(context)}>🔊 Verse</button>
+        <Speak
+          text={word}
+          label="Word"
+          rate={settings.rate}
+          slowRate={settings.slowRate}
+          voiceURI={settings.voiceURI}
+        />
+        <Speak
+          text={context}
+          label="Sentence"
+          rate={settings.rate}
+          slowRate={settings.slowRate}
+          voiceURI={settings.voiceURI}
+        />
       </div>
 
       <div className="panel-actions">

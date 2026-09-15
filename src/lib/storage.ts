@@ -8,6 +8,7 @@ export const DEFAULT_SETTINGS: Settings = {
   chapter: 1,
   parallel: 'below',
   rate: 0.85,
+  slowRate: 0.55,
   voiceURI: null,
   fontSize: 19,
   highlightKnown: true,

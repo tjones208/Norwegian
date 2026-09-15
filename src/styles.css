@@ -794,3 +794,14 @@ p.body {
   margin: 0 0 12px;
 }
 .legend .wd { font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; font-size: 11px; }
+
+/* ---- play + slow replay ------------------------------------------------ */
+.speak-pair { display: inline-flex; gap: 4px; align-items: center; }
+.speak-pair .slow { padding: 7px 10px; line-height: 1; }
+.speak-pair.big button { font-size: 16px; padding: 14px 22px; }
+.speak-pair.big .slow { padding: 14px 16px; }
+
+/* Beside a lesson example the pair stacks, so a one-line sentence keeps its width. */
+.ex-speak { flex: 0 0 auto; }
+.ex-speak .speak-pair { flex-direction: column; gap: 3px; }
+.ex-speak button { padding: 3px 7px; font-size: 12px; }

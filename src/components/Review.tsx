@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { Card } from '../types'
 import { dueCards, formatInterval, review, stats, type Grade } from '../lib/srs'
-import * as tts from '../lib/tts'
+import { Speak } from './Speak'
 
 interface Props {
   cards: Record<string, Card>
   rate: number
+  slowRate: number
   voiceURI: string | null
   onGrade: (card: Card, grade: Grade) => void
 }
@@ -17,7 +18,7 @@ const GRADES: Array<{ grade: Grade; label: string; key: string }> = [
   { grade: 'easy', label: 'Easy', key: '4' },
 ]
 
-export function Review({ cards, rate, voiceURI, onGrade }: Props) {
+export function Review({ cards, rate, slowRate, voiceURI, onGrade }: Props) {
   const [revealed, setRevealed] = useState(false)
   const [done, setDone] = useState(0)
 
@@ -48,8 +49,6 @@ export function Review({ cards, rate, voiceURI, onGrade }: Props) {
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [current, revealed, onGrade])
-
-  const speak = (text: string) => tts.speak(text, { rate, voiceURI })
 
   if (!list.length) {
     return (
@@ -119,8 +118,16 @@ export function Review({ cards, rate, voiceURI, onGrade }: Props) {
               </div>
             )}
             <div className="panel-actions" style={{ justifyContent: 'center', marginTop: 18 }}>
-              <button onClick={() => speak(current.surface)}>🔊 Word</button>
-              {current.context && <button onClick={() => speak(current.context!)}>🔊 Sentence</button>}
+              <Speak text={current.surface} label="Word" rate={rate} slowRate={slowRate} voiceURI={voiceURI} />
+              {current.context && (
+                <Speak
+                  text={current.context}
+                  label="Sentence"
+                  rate={rate}
+                  slowRate={slowRate}
+                  voiceURI={voiceURI}
+                />
+              )}
             </div>
           </div>
 

@@ -117,6 +117,8 @@ export interface Settings {
   parallel: ParallelMode
   /** Speech rate, 0.5–1.5. Slow is normal when you are starting out. */
   rate: number
+  /** Rate used by the "slower" button next to every play control. */
+  slowRate: number
   /** URI of the chosen speech voice. */
   voiceURI: string | null
   fontSize: number

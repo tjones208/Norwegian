@@ -5,7 +5,7 @@ import { Review } from './Review'
 import { wordFrequencies } from '../lib/tokenize'
 import { allVerseTexts } from '../lib/corpus'
 import { lookup } from '../lib/glossary'
-import * as tts from '../lib/tts'
+import { Speak } from './Speak'
 
 interface Props {
   state: AppState
@@ -52,7 +52,7 @@ export function Deck({ state, corpus, onRemoveCard, onGrade, onAddWord }: Props)
   const filter = <T,>(items: T[], text: (item: T) => string) =>
     query.trim() ? items.filter((i) => text(i).toLowerCase().includes(query.toLowerCase())) : items
 
-  const speak = (text: string) => tts.speak(text, { rate: state.settings.rate, voiceURI: state.settings.voiceURI })
+  const { rate, slowRate, voiceURI } = state.settings
 
   return (
     <>
@@ -99,8 +99,9 @@ export function Deck({ state, corpus, onRemoveCard, onGrade, onAddWord }: Props)
       {view === 'review' && (
         <Review
           cards={state.cards}
-          rate={state.settings.rate}
-          voiceURI={state.settings.voiceURI}
+          rate={rate}
+          slowRate={slowRate}
+          voiceURI={voiceURI}
           onGrade={onGrade}
         />
       )}
@@ -108,7 +109,14 @@ export function Deck({ state, corpus, onRemoveCard, onGrade, onAddWord }: Props)
       {view === 'deck' && (
         <div className="card-grid">
           {filter(cards, (c) => `${c.surface} ${c.lemma} ${c.en}`).map((card) => (
-            <CardRow key={card.id} card={card} onSpeak={speak} onRemove={() => onRemoveCard(card.id)} />
+            <CardRow
+              key={card.id}
+              card={card}
+              rate={rate}
+              slowRate={slowRate}
+              voiceURI={voiceURI}
+              onRemove={() => onRemoveCard(card.id)}
+            />
           ))}
           {!cards.length && <div className="empty">No saved words yet.</div>}
         </div>
@@ -126,7 +134,7 @@ export function Deck({ state, corpus, onRemoveCard, onGrade, onAddWord }: Props)
                 <span className="lemma">{item.word}</span>
                 <span className="en">{item.en}</span>
                 <span className="meta">{item.count}×</span>
-                <button onClick={() => speak(item.word)}>🔊</button>
+                <Speak text={item.word} rate={rate} slowRate={slowRate} voiceURI={voiceURI} />
                 <button onClick={() => onAddWord(item.word, item.en, item.lemma)}>+ Add</button>
               </div>
             ))}
@@ -147,7 +155,19 @@ export function Deck({ state, corpus, onRemoveCard, onGrade, onAddWord }: Props)
   )
 }
 
-function CardRow({ card, onSpeak, onRemove }: { card: Card; onSpeak: (t: string) => void; onRemove: () => void }) {
+function CardRow({
+  card,
+  rate,
+  slowRate,
+  voiceURI,
+  onRemove,
+}: {
+  card: Card
+  rate: number
+  slowRate: number
+  voiceURI: string | null
+  onRemove: () => void
+}) {
   const due = card.dueAt <= Date.now()
   return (
     <div className="row">
@@ -156,7 +176,7 @@ function CardRow({ card, onSpeak, onRemove }: { card: Card; onSpeak: (t: string)
       <span className="meta" style={{ color: due ? 'var(--due)' : undefined }}>
         {card.reps === 0 ? 'new' : due ? 'due' : `${card.interval}d`}
       </span>
-      <button onClick={() => onSpeak(card.surface)}>🔊</button>
+      <Speak text={card.surface} rate={rate} slowRate={slowRate} voiceURI={voiceURI} />
       <button onClick={onRemove} title="Remove from deck">
         ✕
       </button>

@@ -97,8 +97,13 @@ export function speak(text: string, options: SpeakOptions = {}): void {
   window.speechSynthesis.speak(utterance)
 }
 
+/**
+ * The Web Speech API accepts 0.1–10. We cap the top at 1.5 because anything
+ * faster is useless for learning, and allow the bottom down to 0.2 so the
+ * "slower" control can genuinely crawl through a sentence word by word.
+ */
 export function clampRate(rate: number): number {
-  return Math.min(1.5, Math.max(0.5, rate))
+  return Math.min(1.5, Math.max(0.2, rate))
 }
 
 /**

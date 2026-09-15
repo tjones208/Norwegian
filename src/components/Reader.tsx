@@ -6,6 +6,7 @@ import { logActivity } from '../lib/plan'
 import { phrasesIn } from '../lib/glossary'
 import { normalize } from '../lib/tokenize'
 import * as tts from '../lib/tts'
+import { Speak } from './Speak'
 import { VerseView } from './VerseView'
 import { WordPanel } from './WordPanel'
 
@@ -55,11 +56,11 @@ export function Reader({ corpus, state, update, onAddCard, onRemoveCard }: Props
   }, [settings.bookId, settings.chapter, stopPlayback])
 
   const speakVerse = useCallback(
-    (verseNumber: number, text: string) => {
+    (verseNumber: number, text: string, slow = false) => {
       setPlaying(verseNumber)
       setBoundary(null)
       tts.speak(text, {
-        rate: settingsRef.current.rate,
+        rate: slow ? settingsRef.current.slowRate : settingsRef.current.rate,
         voiceURI: settingsRef.current.voiceURI,
         onBoundary: (charIndex) => setBoundary(charIndex),
         onEnd: () => {
@@ -105,9 +106,9 @@ export function Reader({ corpus, state, update, onAddCard, onRemoveCard }: Props
   )
 
   const handleSpeakVerse = useCallback(
-    (target: VerseRef, text: string) => {
+    (target: VerseRef, text: string, slow = false) => {
       continueRef.current = false
-      speakVerse(target.verse, text)
+      speakVerse(target.verse, text, slow)
     },
     [speakVerse],
   )
@@ -356,7 +357,12 @@ export function Reader({ corpus, state, update, onAddCard, onRemoveCard }: Props
                   {p.no}
                 </span>
                 <span className="en">{p.en}</span>
-                <button onClick={() => speakOne(p.no)}>🔊</button>
+                <Speak
+                  text={p.no}
+                  rate={settings.rate}
+                  slowRate={settings.slowRate}
+                  voiceURI={settings.voiceURI}
+                />
               </div>
             ))}
           </div>
@@ -389,7 +395,7 @@ export function Reader({ corpus, state, update, onAddCard, onRemoveCard }: Props
           context={selected.context}
           userGlossary={state.userGlossary}
           existingCard={existingCardFor(selected.word)}
-          onSpeak={speakOne}
+          settings={settings}
           onAddCard={onAddCard}
           onRemoveCard={onRemoveCard}
           onSaveGloss={(entry) =>

@@ -6,6 +6,7 @@ import { studiedLessonIds } from '../lib/plan'
 import { LESSONS } from '../data/lessons'
 import * as tts from '../lib/tts'
 import * as asr from '../lib/asr'
+import { Speak } from './Speak'
 
 interface Props {
   state: AppState
@@ -124,9 +125,15 @@ export function Practice({ state, corpus, lessonId, only, onAnswered }: Props) {
       <div className="drill">
         {drill.kind === 'dictation' ? (
           <div className="drill-prompt">
-            <button className="primary big-audio" onClick={() => drill.audio && speak(drill.audio)}>
-              🔊 Play again
-            </button>
+            <Speak
+              text={drill.audio ?? ''}
+              label="Play again"
+              primary
+              big
+              rate={state.settings.rate}
+              slowRate={state.settings.slowRate}
+              voiceURI={state.settings.voiceURI}
+            />
             <p className="ui" style={{ color: 'var(--text-faint)' }}>{drill.prompt}</p>
           </div>
         ) : (
@@ -135,9 +142,13 @@ export function Practice({ state, corpus, lessonId, only, onAnswered }: Props) {
             {drill.kind === 'translate' && <p className="ui prompt-task">Write it in Norwegian.</p>}
             {drill.kind === 'cloze' && drill.hint && <p className="ui prompt-task">{drill.hint}</p>}
             {drill.kind === 'speak' && (
-              <button className="ghost" onClick={() => drill.audio && speak(drill.audio)}>
-                🔊 Hear it first
-              </button>
+              <Speak
+                text={drill.audio ?? ''}
+                label="Hear it first"
+                rate={state.settings.rate}
+                slowRate={state.settings.slowRate}
+                voiceURI={state.settings.voiceURI}
+              />
             )}
           </div>
         )}
@@ -195,7 +206,14 @@ export function Practice({ state, corpus, lessonId, only, onAnswered }: Props) {
           </form>
         )}
 
-        {result && <Feedback result={result} drill={drill} onSpeak={speak} onNext={next} />}
+        {result && (
+          <Feedback
+            result={result}
+            drill={drill}
+            settings={state.settings}
+            onNext={next}
+          />
+        )}
       </div>
 
       <p className="ui hint-line">
@@ -211,12 +229,12 @@ export function Practice({ state, corpus, lessonId, only, onAnswered }: Props) {
 function Feedback({
   result,
   drill,
-  onSpeak,
+  settings,
   onNext,
 }: {
   result: Result
   drill: Drill
-  onSpeak: (t: string) => void
+  settings: AppState['settings']
   onNext: () => void
 }) {
   return (
@@ -252,7 +270,13 @@ function Feedback({
       )}
 
       <div className="panel-actions">
-        <button onClick={() => onSpeak(drill.audio ?? drill.answer)}>🔊 Hear it</button>
+        <Speak
+          text={drill.audio ?? drill.answer}
+          label="Hear it"
+          rate={settings.rate}
+          slowRate={settings.slowRate}
+          voiceURI={settings.voiceURI}
+        />
         <button className="primary" onClick={onNext} autoFocus>
           Neste ›
         </button>

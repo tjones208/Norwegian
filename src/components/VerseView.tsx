@@ -15,7 +15,7 @@ interface Props {
   speakingAt: number | null
   selectedWord: string | null
   onWordClick: (word: string, ref: VerseRef, verseText: string) => void
-  onSpeakVerse: (ref: VerseRef, text: string) => void
+  onSpeakVerse: (ref: VerseRef, text: string, slow?: boolean) => void
   onToggleRead: (ref: VerseRef) => void
   onSaveNote: (ref: VerseRef, text: string) => void
 }
@@ -83,6 +83,9 @@ function VerseViewInner({
       <div className="verse-tools ui">
         <button onClick={() => onSpeakVerse(ref_, verse.no)} title="Read this verse aloud">
           ▶ Les
+        </button>
+        <button onClick={() => onSpeakVerse(ref_, verse.no, true)} title="Read this verse aloud, slowly">
+          🐢 Sakte
         </button>
         <button
           onClick={() => {

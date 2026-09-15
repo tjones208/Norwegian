@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react'
-import type { AppState, Lesson, Section } from '../types'
+import type { AppState, Lesson, Section, Settings } from '../types'
 import { LESSONS, UNITS, lessonsInUnit } from '../data/lessons'
 import { nextLesson } from '../lib/plan'
-import * as tts from '../lib/tts'
+import { Speak } from './Speak'
 
 interface Props {
   state: AppState
@@ -17,15 +17,13 @@ export function Lessons({ state, onComplete, onPractiseLesson, initialLessonId }
   const [openId, setOpenId] = useState<string | null>(initialLessonId ?? null)
 
   const lesson = openId ? LESSONS.find((l) => l.id === openId) : undefined
-  const speak = (text: string) =>
-    tts.speak(text, { rate: state.settings.rate, voiceURI: state.settings.voiceURI })
 
   if (lesson) {
     return (
       <LessonView
         lesson={lesson}
         done={Boolean(state.lessons[lesson.id]?.completedAt)}
-        onSpeak={speak}
+        settings={state.settings}
         onBack={() => setOpenId(null)}
         onComplete={() => {
           onComplete(lesson.id)
@@ -87,13 +85,13 @@ export function Lessons({ state, onComplete, onPractiseLesson, initialLessonId }
 interface ViewProps {
   lesson: Lesson
   done: boolean
-  onSpeak: (text: string) => void
+  settings: Settings
   onBack: () => void
   onComplete: () => void
   onPractise: () => void
 }
 
-function LessonView({ lesson, done, onSpeak, onBack, onComplete, onPractise }: ViewProps) {
+function LessonView({ lesson, done, settings, onBack, onComplete, onPractise }: ViewProps) {
   return (
     <article>
       <button className="ghost ui" onClick={onBack} style={{ marginBottom: 12 }}>
@@ -107,7 +105,7 @@ function LessonView({ lesson, done, onSpeak, onBack, onComplete, onPractise }: V
       <p className="heading">{lesson.summary}</p>
 
       {lesson.sections.map((section, i) => (
-        <SectionView key={i} section={section} onSpeak={onSpeak} />
+        <SectionView key={i} section={section} settings={settings} />
       ))}
 
       {lesson.vocab && lesson.vocab.length > 0 && (
@@ -120,9 +118,12 @@ function LessonView({ lesson, done, onSpeak, onBack, onComplete, onPractise }: V
                   {v.no}
                 </span>
                 <span className="en">{v.en}</span>
-                <button onClick={() => onSpeak(v.no)} aria-label={`Speak ${v.no}`}>
-                  🔊
-                </button>
+                <Speak
+                  text={v.no}
+                  rate={settings.rate}
+                  slowRate={settings.slowRate}
+                  voiceURI={settings.voiceURI}
+                />
               </div>
             ))}
           </div>
@@ -139,7 +140,7 @@ function LessonView({ lesson, done, onSpeak, onBack, onComplete, onPractise }: V
   )
 }
 
-function SectionView({ section, onSpeak }: { section: Section; onSpeak: (t: string) => void }) {
+function SectionView({ section, settings }: { section: Section; settings: Settings }) {
   return (
     <section className="lesson-section">
       <h2 className="section">{section.heading}</h2>
@@ -149,14 +150,14 @@ function SectionView({ section, onSpeak }: { section: Section; onSpeak: (t: stri
         <div className="examples">
           {section.examples.map((ex, i) => (
             <div className="example" key={i}>
-              <button
-                className="ghost ex-speak"
-                onClick={() => onSpeak(ex.no)}
-                aria-label={`Speak ${ex.no}`}
-                title="Read aloud"
-              >
-                🔊
-              </button>
+              <span className="ex-speak">
+                <Speak
+                  text={ex.no}
+                  rate={settings.rate}
+                  slowRate={settings.slowRate}
+                  voiceURI={settings.voiceURI}
+                />
+              </span>
               <div>
                 <div className="ex-no">{ex.no}</div>
                 <div className="ex-en">{ex.en}</div>

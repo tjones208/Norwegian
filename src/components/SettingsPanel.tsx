@@ -109,6 +109,37 @@ export function SettingsPanel({ state, corpus, manifest, update, replaceState }:
       )}
 
       <div className="field">
+        <label htmlFor="slow">Slow speed — {settings.slowRate.toFixed(2)}×</label>
+        <input
+          id="slow"
+          type="range"
+          min={0.3}
+          max={0.9}
+          step={0.05}
+          value={settings.slowRate}
+          onChange={(e) =>
+            update((s) => ({ ...s, settings: { ...s.settings, slowRate: Number(e.target.value) } }))
+          }
+        />
+        <div className="help">
+          What the 🐢 button next to every play control uses. Drop it as low as you need — very slow speech
+          separates the words, which is exactly what you want when a sentence runs together.
+        </div>
+        <div className="panel-actions">
+          <button
+            onClick={() =>
+              tts.speak('Jeg snakker ikke så fort som du tror.', {
+                rate: settings.slowRate,
+                voiceURI: settings.voiceURI,
+              })
+            }
+          >
+            🐢 Test slow speed
+          </button>
+        </div>
+      </div>
+
+      <div className="field">
         <label>
           <input
             type="checkbox"
