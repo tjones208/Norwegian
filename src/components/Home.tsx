@@ -4,6 +4,7 @@ import { buildPlan, curriculumProgress, dayLog, recentDays, streak } from '../li
 import { stats } from '../lib/srs'
 import { UNITS } from '../data/lessons'
 import { nextLesson } from '../lib/plan'
+import { InstallCard } from './InstallCard'
 
 interface Props {
   state: AppState
@@ -88,6 +89,8 @@ export function Home({ state, onGo }: Props) {
           )
         })}
       </div>
+
+      <InstallCard compact />
 
       <h2 className="section">I dag — today</h2>
       <div className="card-grid">

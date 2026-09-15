@@ -94,6 +94,24 @@ Speech uses the voices your operating system provides. If no Norwegian voice is
 installed, Settings tells you how to add one; without it, speech falls back to
 another language and sounds wrong.
 
+## Installing it on a phone
+
+The app installs to a home screen and runs offline — lessons, drills, the
+glossary and the text are all cached on the device, so a subway or a plane is
+fine. Speech still needs a Norwegian voice installed on the device, but that is
+part of the operating system, not this app.
+
+- **Android / Chrome / Edge** — an *Install* button appears on the home screen
+  and in Settings. Failing that, use the browser's ⋮ menu → *Install app*.
+- **iPhone / iPad** — Safari only, and it never offers a button: tap Share, then
+  *Add to Home Screen*. Chrome on iOS cannot install web apps.
+
+Installation needs https, so use the deployed URL rather than `npm run dev` when
+testing it on a phone.
+
+Icons are committed under `public/icons/`. To change the mark, edit and rerun
+`npm run icons` (it needs Playwright, which is not a project dependency).
+
 ## Keyboard
 
 | Key | |

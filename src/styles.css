@@ -805,3 +805,22 @@ p.body {
 .ex-speak { flex: 0 0 auto; }
 .ex-speak .speak-pair { flex-direction: column; gap: 3px; }
 .ex-speak button { padding: 3px 7px; font-size: 12px; }
+
+/* ---- install prompt ---------------------------------------------------- */
+.install-card {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 13px 15px;
+  margin-bottom: 20px;
+  background: var(--accent-soft);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+.install-card > button { white-space: nowrap; }
+
+@media (max-width: 720px) {
+  .install-card { flex-wrap: wrap; }
+  .install-card > button { width: 100%; }
+}

@@ -6,6 +6,7 @@ import { countVerses } from '../lib/corpus'
 import * as tts from '../lib/tts'
 import * as asr from '../lib/asr'
 import * as sync from '../lib/sync'
+import { InstallCard } from './InstallCard'
 
 interface Props {
   state: AppState
@@ -28,6 +29,9 @@ export function SettingsPanel({ state, corpus, manifest, update, replaceState }:
 
   return (
     <>
+      <h2 className="section">On your phone</h2>
+      <InstallCard />
+
       <h2 className="section">Text</h2>
       <div className="field">
         <label htmlFor="corpus">Reading</label>
